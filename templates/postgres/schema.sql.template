@@ -1,0 +1,166 @@
+-- AlgoXL High-Frequency Trading Database Schema
+-- ---------------------------------------------
+-- This schema defines tables and hypertables for storing OHLCV data
+
+-- Ensure TimescaleDB extension is created
+CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+
+-- Create schemas for different data types
+CREATE SCHEMA IF NOT EXISTS market_data;
+CREATE SCHEMA IF NOT EXISTS meta;
+CREATE SCHEMA IF NOT EXISTS analytics;
+
+-- Grant permissions to our user
+GRANT ALL ON SCHEMA market_data, meta, analytics TO {{DB_USER}};
+
+-- Create a table for reference data
+CREATE TABLE IF NOT EXISTS meta.symbols (
+    symbol TEXT PRIMARY KEY,
+    name TEXT,
+    exchange TEXT,
+    sector TEXT,
+    industry TEXT,
+    currency TEXT,
+    data_source TEXT,
+    last_updated TIMESTAMPTZ DEFAULT now()
+);
+
+-- Create a table for tick data (raw price updates)
+CREATE TABLE IF NOT EXISTS market_data.tick_data (
+    time TIMESTAMPTZ NOT NULL,
+    symbol TEXT NOT NULL,
+    price NUMERIC(16,6) NOT NULL,
+    volume NUMERIC(20,2) NOT NULL,
+    bid NUMERIC(16,6),
+    ask NUMERIC(16,6),
+    source TEXT
+);
+
+-- Convert tick_data to a hypertable
+SELECT create_hypertable('market_data.tick_data', 'time', 
+                         chunk_time_interval => INTERVAL '1 hour');
+
+-- Create an index for fast lookups by symbol and time
+CREATE INDEX ON market_data.tick_data (symbol, time DESC);
+
+-- Create a table for OHLCV data (tick data aggregated into candles)
+CREATE TABLE IF NOT EXISTS market_data.ohlcv (
+    time TIMESTAMPTZ NOT NULL,
+    symbol TEXT NOT NULL,
+    interval TEXT NOT NULL,
+    open NUMERIC(16,6) NOT NULL,
+    high NUMERIC(16,6) NOT NULL,
+    low NUMERIC(16,6) NOT NULL,
+    close NUMERIC(16,6) NOT NULL,
+    volume NUMERIC(20,2) NOT NULL,
+    trades INTEGER,
+    vwap NUMERIC(16,6)
+);
+
+-- Convert ohlcv to a hypertable with time as the partitioning dimension
+SELECT create_hypertable('market_data.ohlcv', 'time', 
+                         chunk_time_interval => INTERVAL '1 day');
+
+-- Create a compound index for fast lookups by symbol, interval, and time
+CREATE INDEX ON market_data.ohlcv (symbol, interval, time DESC);
+
+-- Enable compression for OHLCV data with segmentby on symbol and interval
+ALTER TABLE market_data.ohlcv SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'symbol,interval'
+);
+
+-- Add compression policy to automatically compress chunks older than 7 days
+SELECT add_compression_policy('market_data.ohlcv', INTERVAL '7 days');
+
+-- Create continuous aggregates for common time intervals
+-- 1-minute OHLCV - Using tick_data as the source
+CREATE MATERIALIZED VIEW IF NOT EXISTS market_data.ohlcv_1min
+WITH (timescaledb.continuous) AS
+SELECT
+    time_bucket('1 minute', time) AS bucket,
+    symbol,
+    first(price, time) AS open,
+    max(price) AS high,
+    min(price) AS low,
+    last(price, time) AS close,
+    sum(volume) AS volume,
+    count(*) AS trades
+FROM market_data.tick_data
+GROUP BY bucket, symbol;
+
+-- Add refresh policy for 1-minute OHLCV data
+SELECT add_continuous_aggregate_policy('market_data.ohlcv_1min',
+    start_offset => INTERVAL '1 day',
+    end_offset => INTERVAL '1 minute',
+    schedule_interval => INTERVAL '1 minute');
+
+-- 5-minute OHLCV - Using tick_data as the source  
+CREATE MATERIALIZED VIEW IF NOT EXISTS market_data.ohlcv_5min
+WITH (timescaledb.continuous) AS
+SELECT
+    time_bucket('5 minutes', time) AS bucket,
+    symbol,
+    first(price, time) AS open,
+    max(price) AS high,
+    min(price) AS low,
+    last(price, time) AS close,
+    sum(volume) AS volume,
+    count(*) AS trades
+FROM market_data.tick_data
+GROUP BY bucket, symbol;
+
+-- Add refresh policy for 5-minute OHLCV data
+SELECT add_continuous_aggregate_policy('market_data.ohlcv_5min',
+    start_offset => INTERVAL '1 day',
+    end_offset => INTERVAL '5 minutes',
+    schedule_interval => INTERVAL '5 minutes');
+
+-- Create a view for the latest price of each symbol
+CREATE OR REPLACE VIEW market_data.latest_prices AS
+SELECT DISTINCT ON (symbol)
+    symbol,
+    time,
+    close AS price,
+    volume
+FROM market_data.ohlcv
+ORDER BY symbol, time DESC;
+
+-- Create a function to calculate VWAP (Volume Weighted Average Price)
+CREATE OR REPLACE FUNCTION analytics.calculate_vwap(
+    symbol_param TEXT,
+    start_time TIMESTAMPTZ,
+    end_time TIMESTAMPTZ
+) RETURNS TABLE (
+    symbol TEXT,
+    vwap NUMERIC
+)
+LANGUAGE SQL
+AS $$
+    SELECT 
+        symbol,
+        SUM(close * volume) / NULLIF(SUM(volume), 0) AS vwap
+    FROM market_data.ohlcv
+    WHERE symbol = symbol_param
+      AND time BETWEEN start_time AND end_time
+    GROUP BY symbol;
+$$;
+
+-- Create a retention policy for tick data (keep for 30 days)
+SELECT add_retention_policy('market_data.tick_data', INTERVAL '30 days');
+
+-- Sample data for testing
+-- Insert some sample symbols
+INSERT INTO meta.symbols (symbol, name, exchange, sector, currency)
+VALUES 
+    ('AAPL', 'Apple Inc.', 'NASDAQ', 'Technology', 'USD'),
+    ('MSFT', 'Microsoft Corporation', 'NASDAQ', 'Technology', 'USD'),
+    ('GOOGL', 'Alphabet Inc.', 'NASDAQ', 'Technology', 'USD'),
+    ('AMZN', 'Amazon.com Inc.', 'NASDAQ', 'Consumer Cyclical', 'USD'),
+    ('TSLA', 'Tesla Inc.', 'NASDAQ', 'Automotive', 'USD')
+ON CONFLICT (symbol) DO UPDATE
+SET name = EXCLUDED.name,
+    exchange = EXCLUDED.exchange,
+    sector = EXCLUDED.sector,
+    currency = EXCLUDED.currency,
+    last_updated = now();

@@ -1,0 +1,64 @@
+-- AlgoXL High-Frequency Trading Database User Configuration
+-- --------------------------------------------------------
+-- This script sets up users and permissions for the AlgoXL database
+
+-- Create a read-only user for analytics
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'analytics_user') THEN
+        CREATE ROLE analytics_user WITH LOGIN PASSWORD 'analytics123';
+    END IF;
+END
+$$;
+
+-- Create a trading system user with more privileges
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'trading_system') THEN
+        CREATE ROLE trading_system WITH LOGIN PASSWORD 'trading456';
+    END IF;
+END
+$$;
+
+-- Ensure schemas exist first
+CREATE SCHEMA IF NOT EXISTS market_data;
+CREATE SCHEMA IF NOT EXISTS meta;
+CREATE SCHEMA IF NOT EXISTS analytics;
+
+-- Grant permissions to analytics_user
+GRANT CONNECT ON DATABASE {{DB_NAME}} TO analytics_user;
+GRANT USAGE ON SCHEMA market_data, meta, analytics TO analytics_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA market_data, meta, analytics TO analytics_user;
+
+-- Set up default privileges for future tables
+ALTER DEFAULT PRIVILEGES IN SCHEMA market_data, meta, analytics
+GRANT SELECT ON TABLES TO analytics_user;
+
+-- Grant permissions to trading_system
+GRANT CONNECT ON DATABASE {{DB_NAME}} TO trading_system;
+GRANT USAGE ON SCHEMA market_data, meta, analytics TO trading_system;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA market_data, meta TO trading_system;
+GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO trading_system;
+
+-- Set up default privileges for future tables
+ALTER DEFAULT PRIVILEGES IN SCHEMA market_data, meta
+GRANT SELECT, INSERT, UPDATE ON TABLES TO trading_system;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA analytics
+GRANT SELECT ON TABLES TO trading_system;
+
+-- Save credentials to system table for reference
+CREATE TABLE IF NOT EXISTS meta.system_users (
+    username TEXT PRIMARY KEY,
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+INSERT INTO meta.system_users (username, description)
+VALUES 
+    ('{{DB_USER}}', 'Administrator with full access'),
+    ('analytics_user', 'Read-only user for analytics purposes'),
+    ('trading_system', 'User for trading system operations with write access to market data')
+ON CONFLICT (username) DO UPDATE
+SET description = EXCLUDED.description,
+    created_at = now();
