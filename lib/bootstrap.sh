@@ -66,7 +66,7 @@ EOF
 fi
 
 # Source the environment manager to load environment variables
-source "$ALGOdb_HOME/lib/env-manager.sh"
+source "$ALGODB_HOME/lib/env-manager.sh"
 load_env
 
 # Create required directories
