@@ -1,6 +1,6 @@
-# AlgoXL - High-Frequency Trading Database
+# AlgoDB - High-Frequency Trading Database
 
-AlgoXL is a comprehensive solution for deploying and configuring PostgreSQL with TimescaleDB extension, optimized specifically for high-frequency trading data. This project provides enterprise-ready scripts for installation, configuration, and verification on AlmaLinux 9+ systems.
+AlgoDB is a comprehensive solution for deploying and configuring PostgreSQL with TimescaleDB extension, optimized specifically for high-frequency trading data. This project provides enterprise-ready scripts for installation, configuration, and verification on AlmaLinux 9+ systems.
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![TimescaleDB](https://img.shields.io/badge/TimescaleDB-FDB515?style=for-the-badge&logo=timescale&logoColor=black)
@@ -28,8 +28,8 @@ AlgoXL is a comprehensive solution for deploying and configuring PostgreSQL with
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/exoafin/algoxl.git
-   cd algoxl
+   git clone https://github.com/expafin/algodb.git
+   cd algodb
    ```
 
 2. Run the installation script:
@@ -47,7 +47,7 @@ The installation process will:
 
 ## 💾 Database Schema
 
-AlgoXL creates the following key tables:
+AlgoDB creates the following key tables:
 
 - **market_data.tick_data**: Raw price and volume data
 - **market_data.ohlcv**: Aggregated candle data (Open, High, Low, Close, Volume)
@@ -92,7 +92,7 @@ To modify security settings, edit the templates in `templates/postgres/`.
 
 ## 📊 Performance Tuning
 
-AlgoXL automatically configures PostgreSQL based on your hardware. Key optimized parameters include:
+AlgoDB automatically configures PostgreSQL based on your hardware. Key optimized parameters include:
 
 - Shared buffers
 - Work memory
@@ -108,7 +108,7 @@ To upgrade to a newer version:
 
 1. Backup your existing data:
    ```bash
-   sudo -u postgres pg_dump -Fc algoxl > algoxl_backup.dump
+   sudo -u postgres pg_dump -Fc algodb > algodb_backup.dump
    ```
 
 2. Run the uninstallation script but keep your data directories:

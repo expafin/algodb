@@ -1,6 +1,6 @@
--- AlgoXL High-Frequency Trading Database User Configuration
+-- AlgoDB High-Frequency Trading Database User Configuration
 -- --------------------------------------------------------
--- This script sets up users and permissions for the AlgoXL database
+-- This script sets up users and permissions for the AlgoDB database
 
 -- Create a read-only user for analytics
 DO $$

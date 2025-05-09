@@ -1,6 +1,6 @@
 # PostgreSQL Client Authentication Configuration File
 # --------------------------------------------------
-# Optimized for AlgoXL - High-Frequency Trading Database
+# Optimized for AlgoDB - High-Frequency Trading Database
 
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 

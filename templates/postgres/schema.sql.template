@@ -1,4 +1,4 @@
--- AlgoXL High-Frequency Trading Database Schema
+-- AlgoDB High-Frequency Trading Database Schema
 -- ---------------------------------------------
 -- This schema defines tables and hypertables for storing OHLCV data
 

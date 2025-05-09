@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# AlgoXL - Shared Functions
+# AlgoDB - Shared Functions
 # -----------------------
-# Common utility functions for AlgoXL scripts
+# Common utility functions for AlgoDB scripts
 
 # Function to print a section header
 print_section() {
@@ -101,7 +101,7 @@ generate_password() {
 log_message() {
     local level="$1"
     local message="$2"
-    local log_file="${3:-/var/log/algoxl.log}"
+    local log_file="${3:-/var/log/algodb.log}"
     
     # Create log directory if it doesn't exist
     local log_dir=$(dirname "$log_file")
@@ -130,7 +130,7 @@ log_message() {
 # Function to backup a file before modifying it
 backup_file() {
     local file="$1"
-    local backup_dir="${2:-/var/backups/algoxl}"
+    local backup_dir="${2:-/var/backups/algodb}"
     
     # Create backup directory if it doesn't exist
     if [ ! -d "$backup_dir" ]; then
@@ -154,7 +154,7 @@ backup_file() {
 # Function to restore a file from backup
 restore_file() {
     local file="$1"
-    local backup_dir="${2:-/var/backups/algoxl}"
+    local backup_dir="${2:-/var/backups/algodb}"
     
     # Find the most recent backup
     local backup_file=$(ls -t "$backup_dir/$(basename "$file")".*.bak 2>/dev/null | head -1)

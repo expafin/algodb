@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# AlgoXL - Environment Manager
+# AlgoDB - Environment Manager
 # -------------------------
-# Manage environment variables for AlgoXL
+# Manage environment variables for AlgoDB
 
 # Default environment file location
 DEFAULT_ENV_FILE="/opt/.env"
@@ -78,7 +78,7 @@ set_env_var() {
     
     # Create the file if it doesn't exist
     if [ ! -f "$env_file" ]; then
-        echo "# AlgoXL Environment Configuration" > "$env_file"
+        echo "# AlgoDB Environment Configuration" > "$env_file"
         echo "# Created on $(date '+%Y-%m-%d')" >> "$env_file"
         echo >> "$env_file"
     fi
@@ -145,7 +145,7 @@ add_env_comment() {
     
     # Create the file if it doesn't exist
     if [ ! -f "$env_file" ]; then
-        echo "# AlgoXL Environment Configuration" > "$env_file"
+        echo "# AlgoDB Environment Configuration" > "$env_file"
         echo "# Created on $(date '+%Y-%m-%d')" >> "$env_file"
         echo >> "$env_file"
     fi
@@ -160,7 +160,7 @@ add_env_comment() {
 # Function to backup the environment file
 backup_env_file() {
     local env_file="${1:-$DEFAULT_ENV_FILE}"
-    local backup_dir="/var/backups/algoxl"
+    local backup_dir="/var/backups/algodb"
     
     # Create backup directory if it doesn't exist
     if [ ! -d "$backup_dir" ]; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# AlgoXL - PostgreSQL Test Script
+# AlgoDB - PostgreSQL Test Script
 # ----------------------------
 # Script to test PostgreSQL installation and functionality
 
@@ -9,18 +9,18 @@ set -e
 
 # Get the base directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ALGOXL_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ALGODB_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source the required libraries
-source "$ALGOXL_HOME/lib/functions.sh"
-source "$ALGOXL_HOME/lib/env-manager.sh"
+source "$ALGODB_HOME/lib/functions.sh"
+source "$ALGODB_HOME/lib/env-manager.sh"
 
 # Load environment variables
 load_env
 
 # Set PostgreSQL version if not already set
 PG_VERSION="${PG_VERSION:-15}"
-DB_NAME="${DB_NAME:-algoxl}"
+DB_NAME="${DB_NAME:-algodb}"
 
 print_section "Testing PostgreSQL Installation"
 

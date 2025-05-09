@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# AlgoXL - Database Schema Setup
+# AlgoDB - Database Schema Setup
 # ----------------------------
 # Script to set up the database schema for high-frequency trading
 
@@ -9,11 +9,11 @@ set -e
 
 # Get the base directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ALGOXL_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ALGODB_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source the required libraries
-source "$ALGOXL_HOME/lib/functions.sh"
-source "$ALGOXL_HOME/lib/env-manager.sh"
+source "$ALGODB_HOME/lib/functions.sh"
+source "$ALGODB_HOME/lib/env-manager.sh"
 
 # Check if running as root
 if [ "$(id -u)" -ne 0 ]; then
@@ -26,13 +26,13 @@ load_env
 
 # Make sure DB_NAME, DB_USER, and DB_PASSWORD are properly set
 if [ -z "$DB_NAME" ]; then
-    print_color "yellow" "DB_NAME not set. Using default: algoxl"
-    DB_NAME="algoxl"
+    print_color "yellow" "DB_NAME not set. Using default: algodb"
+    DB_NAME="algodb"
 fi
 
 if [ -z "$DB_USER" ]; then
-    print_color "yellow" "DB_USER not set. Using default: algoxl_user"
-    DB_USER="algoxl_user"
+    print_color "yellow" "DB_USER not set. Using default: algodb_user"
+    DB_USER="algodb_user"
 fi
 
 if [ -z "$DB_PASSWORD" ]; then
@@ -80,14 +80,14 @@ sudo -u postgres psql -d "$DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS timescale
 
 # Set up schema from template
 print_color "blue" "Setting up schema from template..."
-cat "$ALGOXL_HOME/templates/postgres/schema.sql.template" | \
+cat "$ALGODB_HOME/templates/postgres/schema.sql.template" | \
     sed "s/{{DB_NAME}}/$DB_NAME/g" | \
     sed "s/{{DB_USER}}/$DB_USER/g" | \
     sudo -u postgres psql -d "$DB_NAME"
 
 # Set up users from template
 print_color "blue" "Setting up users and permissions..."
-cat "$ALGOXL_HOME/templates/postgres/users.sql.template" | \
+cat "$ALGODB_HOME/templates/postgres/users.sql.template" | \
     sed "s/{{DB_NAME}}/$DB_NAME/g" | \
     sed "s/{{DB_USER}}/$DB_USER/g" | \
     sudo -u postgres psql -d "$DB_NAME"

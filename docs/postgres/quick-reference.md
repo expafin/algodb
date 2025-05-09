@@ -1,16 +1,16 @@
-# AlgoXL - High-Frequency Trading Database Quick Reference
+# AlgoDB - High-Frequency Trading Database Quick Reference
 
 ## Overview
 
-AlgoXL is a high-performance PostgreSQL database with TimescaleDB extension, optimized for storing and querying OHLCV (Open, High, Low, Close, Volume) time-series data for high-frequency trading.
+AlgoDB is a high-performance PostgreSQL database with TimescaleDB extension, optimized for storing and querying OHLCV (Open, High, Low, Close, Volume) time-series data for high-frequency trading.
 
 ## Connection Information
 
-- **Database Name**: algoxl
+- **Database Name**: algodb
 - **Host**: localhost
 - **Port**: 5432
-- **Main User**: algoxl_user
-- **Connection String**: postgresql://algoxl_user:your_password@localhost:5432/algoxl
+- **Main User**: algodb_user
+- **Connection String**: postgresql://algodb_user:your_password@localhost:5432/algodb
 
 ## Database Schema
 
@@ -56,10 +56,10 @@ AlgoXL is a high-performance PostgreSQL database with TimescaleDB extension, opt
 
 ```bash
 # Connect to database
-psql -U algoxl_user -d algoxl
+psql -U algodb_user -d algodb
 
 # Connect as postgres (admin)
-sudo -u postgres psql -d algoxl
+sudo -u postgres psql -d algodb
 ```
 
 ### Data Insertion
@@ -182,7 +182,7 @@ SELECT * FROM timescaledb_information.policies;
 
 3. **Check Database Size**
    ```sql
-   SELECT pg_size_pretty(pg_database_size('algoxl')) AS db_size;
+   SELECT pg_size_pretty(pg_database_size('algodb')) AS db_size;
    ```
 
 4. **Monitor Active Queries**

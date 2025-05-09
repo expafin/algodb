@@ -1,6 +1,6 @@
 # PostgreSQL Configuration for High-Frequency Trading
 # --------------------------------------------------
-# Optimized for AlgoXL - OHLCV time-series data
+# Optimized for AlgoDB - OHLCV time-series data
 # PostgreSQL {{PG_VERSION}} on {{CPU_CORES}} cores and {{TOTAL_MEM_GB}}GB RAM
 # Generated on {{GENERATION_DATE}}
 

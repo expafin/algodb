@@ -1,21 +1,21 @@
 #!/bin/bash
 #
-# AlgoXL - Bootstrap Script
+# AlgoDB - Bootstrap Script
 # -----------------------
-# Initial bootstrap and environment setup for AlgoXL
+# Initial bootstrap and environment setup for AlgoDB
 
 # Exit on error
 set -e
 
 # Get the base directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ALGOXL_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
+ALGODB_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Define the environment file path
 ENV_FILE="${ENV_FILE:-/opt/.env}"
 
 # Source the shared functions
-source "$ALGOXL_HOME/lib/functions.sh"
+source "$ALGODB_HOME/lib/functions.sh"
 
 # Create the environment file if it doesn't exist
 if [ ! -f "$ENV_FILE" ]; then
@@ -34,13 +34,13 @@ if [ ! -f "$ENV_FILE" ]; then
     
     # Create basic environment file
     cat > "$ENV_FILE" << EOF
-# AlgoXL High-Frequency Trading Database Environment
+# AlgoDB High-Frequency Trading Database Environment
 # =================================================
 # Created on $(date '+%Y-%m-%d %H:%M:%S')
 
 # Base directories
-ALGOXL_HOME="$ALGOXL_HOME"
-PROJECT_BASE_DIR="/opt/algoxl"
+ALGODB_HOME="$ALGODB_HOME"
+PROJECT_BASE_DIR="/opt/algodb"
 
 # Server information
 HOSTNAME=$(hostname)
@@ -57,16 +57,16 @@ STORAGE_SIZE="$STORAGE_SIZE"
 
 # Database settings
 PG_VERSION="15"
-DB_NAME="algoxl"
-DB_USER="algoxl_user"
-DB_PASSWORD="$(tr -dc 'A-Za-z0-9!@#$%^&*()_+' < /dev/urandom | head -c 16 2>/dev/null || echo 'AlgoXL2023!')"
+DB_NAME="algodb"
+DB_USER="algodb_user"
+DB_PASSWORD="$(tr -dc 'A-Za-z0-9!@#$%^&*()_+' < /dev/urandom | head -c 16 2>/dev/null || echo 'AlgoDB2023!')"
 EOF
 
     print_color "green" "Environment file created at $ENV_FILE"
 fi
 
 # Source the environment manager to load environment variables
-source "$ALGOXL_HOME/lib/env-manager.sh"
+source "$ALGOdb_HOME/lib/env-manager.sh"
 load_env
 
 # Create required directories
@@ -74,7 +74,7 @@ check_directories() {
     print_color "blue" "Checking required directories..."
     
     # Create base project directory
-    PROJECT_BASE_DIR="${PROJECT_BASE_DIR:-/opt/algoxl}"
+    PROJECT_BASE_DIR="${PROJECT_BASE_DIR:-/opt/algodb}"
     if [ ! -d "$PROJECT_BASE_DIR" ]; then
         print_color "blue" "Creating project base directory at $PROJECT_BASE_DIR..."
         mkdir -p "$PROJECT_BASE_DIR"

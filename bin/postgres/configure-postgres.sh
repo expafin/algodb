@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# AlgoXL - PostgreSQL Configuration
+# AlgoDB - PostgreSQL Configuration
 # ------------------------------
 # Script to configure PostgreSQL for high-frequency trading
 
@@ -9,11 +9,11 @@ set -e
 
 # Get the base directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ALGOXL_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ALGODB_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source the required libraries
-source "$ALGOXL_HOME/lib/functions.sh"
-source "$ALGOXL_HOME/lib/env-manager.sh"
+source "$ALGODB_HOME/lib/functions.sh"
+source "$ALGODB_HOME/lib/env-manager.sh"
 
 # Check if running as root
 if [ "$(id -u)" -ne 0 ]; then
@@ -136,7 +136,7 @@ else
 fi
 
 # Generate the configuration file content
-CONFIG_CONTENT=$(cat "$ALGOXL_HOME/templates/postgres/postgresql.conf.template" | \
+CONFIG_CONTENT=$(cat "$ALGODB_HOME/templates/postgres/postgresql.conf.template" | \
     sed "s/{{PG_VERSION}}/$PG_VERSION/g" | \
     sed "s/{{CPU_CORES}}/$CPU_CORES/g" | \
     sed "s/{{TOTAL_MEM_GB}}/$TOTAL_MEM_GB/g" | \
@@ -163,7 +163,7 @@ else
 fi
 
 # Apply pg_hba.conf from template
-cat "$ALGOXL_HOME/templates/postgres/pg_hba.conf.template" > "$HBA_FILE"
+cat "$ALGODB_HOME/templates/postgres/pg_hba.conf.template" > "$HBA_FILE"
 
 # Set secure permissions on configuration files
 chmod 600 "$CONFIG_FILE" "$HBA_FILE"

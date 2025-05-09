@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# AlgoXL - Installation Verification
+# AlgoDB - Installation Verification
 # -------------------------------
 # Script to verify PostgreSQL and TimescaleDB installation and configuration
 
@@ -9,11 +9,11 @@ set -e
 
 # Get the base directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ALGOXL_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ALGODB_HOME="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source the required libraries
-source "$ALGOXL_HOME/lib/functions.sh"
-source "$ALGOXL_HOME/lib/env-manager.sh"
+source "$ALGODB_HOME/lib/functions.sh"
+source "$ALGODB_HOME/lib/env-manager.sh"
 
 # Check if running as root
 if [ "$(id -u)" -ne 0 ]; then
