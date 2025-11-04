@@ -34,7 +34,7 @@ fi
 
 # Add PostgreSQL repository
 print_color "blue" "Adding PostgreSQL repository..."
-dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
 # Verify the repository is installed and enabled
 if ! rpm -q pgdg-redhat-repo &>/dev/null; then
@@ -47,9 +47,9 @@ print_color "blue" "Cleaning DNF cache to refresh repository data..."
 dnf clean all
 dnf makecache
 
-# Disable builtin PostgreSQL module
+# Disable builtin PostgreSQL module (if it exists)
 print_color "blue" "Disabling built-in PostgreSQL module..."
-dnf -qy module disable postgresql
+dnf -qy module disable postgresql 2>/dev/null || print_color "yellow" "No built-in PostgreSQL module found (this is normal for AlmaLinux 10)"
 
 # Check for available PostgreSQL packages
 print_color "blue" "Checking for available PostgreSQL packages..."
